@@ -1,10 +1,950 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Welcome to Our Page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rings True</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --card: #fffdf9;
+      --ink: #2f2a24;
+      --muted: #6f675d;
+      --line: #ddd2c3;
+      --line-soft: #e9e1d6;
+      --accent: #a8885e;
+      --accent-soft: #f3e6d2;
+      --shadow: 0 10px 24px rgba(58, 46, 33, 0.08);
+      --shadow-soft: 0 4px 12px rgba(58, 46, 33, 0.05);
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Georgia, 'Times New Roman', serif;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.55), transparent 35%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 30px 24px 48px;
+    }
+    .hero, .panel {
+      background: linear-gradient(180deg, rgba(255,253,249,0.96) 0%, rgba(248,241,231,0.96) 100%);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+    .panel {
+      background: rgba(255,251,245,0.86);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2.2rem, 3.8vw, 3.4rem);
+      line-height: 1.05;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.52rem;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      margin: 0 0 10px;
+      font-size: 1.06rem;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+    .subtitle, .desc {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 980px;
+    }
+    .subtitle {
+      font-size: 1.08rem;
+      color: #5f564d;
+      margin-bottom: 8px;
+    }
+    .desc {
+      line-height: 1.7;
+      margin-bottom: 6px;
+    }
+    .section-label {
+      margin: 0 0 12px;
+      color: #8b7d6c;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+    }
+    .toolbar, .keep-controls, .summary-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      align-items: center;
+    }
+    button {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.9);
+      color: var(--ink);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+      box-shadow: var(--shadow-soft);
+      font-weight: 500;
+      font-family: inherit;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(58, 46, 33, 0.10);
+      border-color: #ccb89b;
+      background: #fffdfa;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: var(--shadow-soft);
+    }
+    .toolbar button:nth-child(2),
+    .summary-actions button:first-child {
+      background: var(--accent-soft);
+      border-color: #d8c0a0;
+    }
+    .summary-actions button { min-width: 128px; }
+    .grid4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+    .column, .keep-panel {
+      min-height: 372px;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid var(--line-soft);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+    .keep-panel {
+      background: linear-gradient(180deg, rgba(255,253,249,0.88), rgba(250,245,237,0.88));
+    }
+    .column.drag-over {
+      outline: 2px dashed #c9ab82;
+      outline-offset: -8px;
+      background: #fcf6ee;
+    }
+    .column .desc, .keep-panel .desc {
+      margin: 0 4px 16px;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+    .dropzone {
+      min-height: 224px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      padding: 18px 18px 17px;
+      box-shadow: var(--shadow-soft);
+      cursor: grab;
+      user-select: none;
+      position: relative;
+      line-height: 1.6;
+    }
+    .card:active { cursor: grabbing; }
+    .card.dragging {
+      opacity: 0.58;
+      transform: rotate(1deg);
+    }
+    .card.keep-selected {
+      border-color: #d5b184;
+      background: linear-gradient(180deg, #fff8ec, #f6ebd8);
+      box-shadow: 0 10px 22px rgba(168, 136, 94, 0.18);
+    }
+    .card.keep-selected::after {
+      content: 'Saved';
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 0.76rem;
+      color: #6d6257;
+      background: rgba(255,255,255,0.9);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+    }
+    .card-num {
+      display: block;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #8b7d6c;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .empty-state {
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      background: rgba(255,255,255,0.5);
+    }
+    .saved-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .saved-card, .summary-box {
+      background: rgba(255,253,249,0.98);
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      padding: 15px 16px;
+      box-shadow: var(--shadow-soft);
+    }
+    .saved-label {
+      display: block;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #8b7d6c;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .keep-hint, .keep-status, .summary-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .position-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .position-card {
+      border: 1px solid var(--line-soft);
+      border-radius: 20px;
+      background: rgba(255,253,249,0.98);
+      padding: 18px;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+    .position-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(58, 46, 33, 0.09);
+      border-color: #ccb89b;
+    }
+    .position-card.active {
+      border-color: #d5b184;
+      background: linear-gradient(180deg, #fff7ea, #f4e6cf);
+      box-shadow: 0 10px 22px rgba(168, 136, 94, 0.16);
+    }
+    .position-title {
+      font-weight: 600;
+      margin-bottom: 7px;
+    }
+    .position-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .summary-list { margin: 0; padding-left: 20px; }
+    .summary-list li { margin-bottom: 8px; }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      color: var(--ink);
+      background: rgba(255,253,249,0.98);
+      min-height: 260px;
+      resize: vertical;
+      line-height: 1.6;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .footer-note {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    .prompt-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 18px 0 20px;
+    }
+    .prompt-preview-box {
+      background: rgba(255,253,249,0.98);
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      padding: 15px 16px;
+      box-shadow: var(--shadow-soft);
+    }
+    .prompt-preview-box.full {
+      grid-column: 1 / -1;
+    }
+    .prompt-preview-title {
+      font-size: 0.9rem;
+      color: #8b7d6c;
+      margin: 0 0 8px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .prompt-preview ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .prompt-preview li {
+      margin-bottom: 6px;
+    }
+    .prompt-next-step {
+      color: var(--muted);
+      line-height: 1.65;
+      margin: 0;
+    }
+    .copyable-label {
+      margin-top: 8px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .saved-list, .summary-grid, .position-grid, .prompt-preview { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 680px) {
+      .wrap { padding: 16px; }
+      .hero, .panel { padding: 20px; }
+      .grid4 { grid-template-columns: 1fr; }
+      .saved-list, .summary-grid, .position-grid, .prompt-preview { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Hello, World!</h1>
-    <p>This is a sample HTML file.</p>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Rings True</h1>
+      <p class="subtitle">A Guided Reflection on Life's Big Questions</p>
+      <p class="desc">Move slowly. Let the questions work on you. Choose what feels real, not what sounds wise or impressive. Most people can move through the reflection in about 15–20 minutes.</p>
+      <div class="toolbar">
+        <button id="resetAllBtn" type="button">Start Over</button>
+        <button id="buildSummaryBtn" type="button">Refresh Prompt</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="section-label">Part 1</p>
+      <h2>Questions That Feel True</h2>
+      <p class="desc">Read each question slowly. Sort by resonance, not by what sounds wise or admirable. Then keep up to three questions that feel especially alive for you right now.</p>
+      <div class="grid4" id="truthBoard"></div>
+      <div class="keep-panel" style="margin-top:24px;">
+        <h3>Keep Up to 3 Questions</h3>
+        <p class="desc">Turn on selection mode, then choose up to three questions from the Questions That Feel True column that you want to carry forward.</p>
+        <div class="keep-controls">
+          <button id="truthToggleBtn" type="button">Choose 3 Questions</button>
+          <button id="truthClearBtn" type="button">Clear Selected Questions</button>
+          <span class="keep-status" id="truthStatus">No questions saved yet.</span>
+        </div>
+        <div class="saved-list" id="truthSavedList"><div class="empty-state">Your selected questions will appear here.</div></div>
+        <div class="keep-hint" id="truthHint">Turn on selection mode, then click up to three cards in the Feels True column.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="section-label">Part 2</p>
+      <h2>What Needs Attention</h2>
+      <p class="desc">Sort by lived experience. Then keep up to two prompts that best name what feels most important, alive, or unresolved right now.</p>
+      <div class="grid4" id="attentionBoard"></div>
+      <div class="keep-panel" style="margin-top:24px;">
+        <h3>Keep Up to 2 Attention Cards</h3>
+        <p class="desc">Turn on selection mode, then choose up to two prompts from the This Is Active for Me column that best name what needs your attention.</p>
+        <div class="keep-controls">
+          <button id="attentionToggleBtn" type="button">Choose 2 Attention Cards</button>
+          <button id="attentionClearBtn" type="button">Clear Selected Attention Cards</button>
+          <span class="keep-status" id="attentionStatus">No attention cards saved yet.</span>
+        </div>
+        <div class="saved-list" id="attentionSavedList"><div class="empty-state">Your selected attention cards will appear here.</div></div>
+        <div class="keep-hint" id="attentionHint">Turn on selection mode, then click up to two cards in the This Is Active for Me column.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="section-label">Part 3</p>
+      <h2>Your 5 Cards</h2>
+      <p class="desc">This is your working snapshot for this moment: three questions that feel true, and two prompts that name what needs attention.</p>
+      <div class="summary-grid">
+        <div class="summary-box">
+          <h3>My 3 Questions</h3>
+          <ul class="summary-list" id="summaryTruthList"><li class="summary-note">No truth cards selected yet.</li></ul>
+        </div>
+        <div class="summary-box">
+          <h3>What Needs Attention</h3>
+          <ul class="summary-list" id="summaryAttentionList"><li class="summary-note">No attention cards selected yet.</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="section-label">Part 4</p>
+      <h2>Your InnerGPS Position</h2>
+      <p class="desc">Choose the way you most naturally want to explore your 3 Big Questions and the 2 that need attention right now.</p>
+      <div class="position-grid" id="positionGrid">
+        <button class="position-card" type="button" data-position="contemplatives">
+          <div class="position-title">Contemplatives</div>
+          <div class="position-desc">Higher inner presence, with less openness to AI. Reflection, inwardness, and spiritual depth feel primary.</div>
+        </button>
+        <button class="position-card" type="button" data-position="explorers">
+          <div class="position-title">Explorers</div>
+          <div class="position-desc">Higher inner presence and higher openness to AI. Curiosity, experimentation, and discovery are all active.</div>
+        </button>
+        <button class="position-card" type="button" data-position="empiricists">
+          <div class="position-title">Empiricists</div>
+          <div class="position-desc">Lower inner presence and lower openness to AI. Practical reality, evidence, and grounded experience feel primary.</div>
+        </button>
+        <button class="position-card" type="button" data-position="investigators">
+          <div class="position-title">Investigators</div>
+          <div class="position-desc">Lower inner presence and higher openness to AI. Inquiry, analysis, and testing new frameworks feel important.</div>
+        </button>
+      </div>
+      <div class="summary-actions">
+        <span class="summary-note" id="positionStatus">No InnerGPS position selected yet.</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="section-label">Part 5</p>
+      <h2>Reflection Prompt</h2>
+      <p class="desc">Here is a clear summary of your reflection. When you are ready, copy the prompt below into ChatGPT or another AI tool for a deeper inquiry.</p>
+
+      <div class="prompt-preview">
+        <div class="prompt-preview-box">
+          <div class="prompt-preview-title">My 3 Big Questions</div>
+          <ul id="promptPreviewTruth"><li class="summary-note">No questions selected yet.</li></ul>
+        </div>
+        <div class="prompt-preview-box">
+          <div class="prompt-preview-title">What Needs Attention</div>
+          <ul id="promptPreviewAttention"><li class="summary-note">No attention items selected yet.</li></ul>
+        </div>
+        <div class="prompt-preview-box">
+          <div class="prompt-preview-title">My InnerGPS Position</div>
+          <div id="promptPreviewPosition" class="summary-note">No InnerGPS position selected yet.</div>
+        </div>
+        <div class="prompt-preview-box full">
+          <div class="prompt-preview-title">What Happens Next</div>
+          <p class="prompt-next-step">First, glance at your five selections and your InnerGPS position. Then copy the prompt below into ChatGPT or another AI tool for a deeper reflection.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <label for="summaryPrompt" class="copyable-label">Copyable Prompt</label>
+        <textarea id="summaryPrompt" placeholder="Your reflection prompt will appear here automatically as you select your cards and choose your InnerGPS position."></textarea>
+      </div>
+      <div class="summary-actions">
+        <button id="copyPromptBtn" type="button">Copy Prompt</button>
+        <button id="openAIBtn" type="button">Open ChatGPT</button>
+        <span class="summary-note" id="copyStatus">Your reflection prompt updates automatically. Copy it, then paste it into ChatGPT or another AI tool.</span>
+      </div>
+    </section>
+
+    <p class="footer-note">Rings True — a guided reflection on life's big questions.</p>
+  </div>
+
+  <script>
+    var truthCards = [
+      [1, 'Who am I beyond my roles and achievements?'],
+      [2, 'Is there a deeper self beyond my thoughts?'],
+      [3, 'Why do I feel different in different moments?'],
+      [4, 'What is the purpose of my life?'],
+      [5, 'Why does success not feel meaningful?'],
+      [6, 'Can I trust my intuition?'],
+      [7, 'Is there guidance within me?'],
+      [8, 'Why do I sabotage myself?'],
+      [9, 'Why do I resist what I know is good for me?'],
+      [10, 'Why do I feel stuck?'],
+      [11, 'Why am I anxious even when things are okay?'],
+      [12, 'Why do I feel empty?'],
+      [13, 'Why do I feel restless or unsettled?'],
+      [14, 'Why do I feel misunderstood?'],
+      [15, 'Why is intimacy difficult?'],
+      [16, 'Why do I repeat the same patterns?'],
+      [17, 'Is there a deeper presence within me?'],
+      [18, 'What does "the divine" actually mean?'],
+      [19, 'Can I actually change my patterns?'],
+      [20, 'Is transformation real or temporary?'],
+      [21, 'What happens at the end of life?'],
+      [22, 'What will I regret?'],
+      [23, 'How should I live knowing time is limited?'],
+      [24, 'Something else feels true for me right now.']
+    ];
+
+    var attentionCards = [
+      [1, 'I want to feel more fully alive in my daily life.'],
+      [2, 'I do not want to keep going through the motions.'],
+      [3, 'I want to be more at peace with myself.'],
+      [4, 'I want my mind to grow quieter and less crowded.'],
+      [5, 'I miss the feeling of joy that comes from being fully here.'],
+      [6, 'I want to feel less driven by worry, pressure, or overthinking.'],
+      [7, 'I want to feel more grounded in myself.'],
+      [8, 'I want to be more present to this moment instead of living mostly in my head.'],
+      [9, 'I want to feel more at ease in my own life.'],
+      [10, 'I am asking what helps me feel alive, inwardly quiet, and at peace.'],
+      [11, 'Something else needs my attention right now.']
+    ];
+
+    var summaryTruthList = document.getElementById('summaryTruthList');
+    var summaryAttentionList = document.getElementById('summaryAttentionList');
+    var summaryPrompt = document.getElementById('summaryPrompt');
+    var copyStatus = document.getElementById('copyStatus');
+    var buildSummaryBtn = document.getElementById('buildSummaryBtn');
+    var copyPromptBtn = document.getElementById('copyPromptBtn');
+    var openAIBtn = document.getElementById('openAIBtn');
+    var positionStatus = document.getElementById('positionStatus');
+    var promptPreviewTruth = document.getElementById('promptPreviewTruth');
+    var promptPreviewAttention = document.getElementById('promptPreviewAttention');
+    var promptPreviewPosition = document.getElementById('promptPreviewPosition');
+    var truthSorter = null;
+    var attentionSorter = null;
+    var currentPosition = null;
+
+    function renderSummaryList(target, cards, emptyText) {
+      target.innerHTML = '';
+      if (!cards.length) {
+        target.innerHTML = '<li class="summary-note">' + emptyText + '</li>';
+        return;
+      }
+      cards.forEach(function(card) {
+        var li = document.createElement('li');
+        li.textContent = card.text;
+        target.appendChild(li);
+      });
+    }
+
+    function updateSummaryAvailability() {
+      var hasPrompt = !!summaryPrompt.value.trim();
+      copyPromptBtn.disabled = !hasPrompt;
+      openAIBtn.disabled = !hasPrompt;
+    }
+
+    function buildColumnsHtml(config) {
+      return config.columns.map(function(col) {
+        var emptyHtml = col.id === 'unsorted' ? '' : '<div class="empty-state">' + col.empty + '</div>';
+        return '<div class="column" data-sorter="' + config.name + '" data-column="' + col.id + '">' +
+          '<h3>' + col.title + '</h3>' +
+          '<p class="desc">' + col.desc + '</p>' +
+          '<div class="dropzone" id="' + config.name + '-' + col.id + '">' + emptyHtml + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function createSorter(config) {
+      var board = document.getElementById(config.boardId);
+      board.innerHTML = buildColumnsHtml(config);
+
+      var zones = {};
+      config.columns.forEach(function(col) {
+        zones[col.id] = document.getElementById(config.name + '-' + col.id);
+      });
+
+      var savedList = document.getElementById(config.savedListId);
+      var status = document.getElementById(config.statusId);
+      var hint = document.getElementById(config.hintId);
+      var toggleBtn = document.getElementById(config.toggleBtnId);
+      var clearBtn = document.getElementById(config.clearBtnId);
+      var cardMap = new Map(config.cards);
+      var keepMode = false;
+      var savedCardIds = [];
+
+      function notifyChange() {
+        if (typeof config.onChange === 'function') config.onChange();
+      }
+
+      function refreshEmptyStates() {
+        Object.keys(zones).forEach(function(id) {
+          var zone = zones[id];
+          var cardsInZone = Array.prototype.slice.call(zone.children).filter(function(el) {
+            return el.classList.contains('card');
+          });
+          var empty = zone.querySelector('.empty-state');
+          if (cardsInZone.length > 0 && empty) empty.remove();
+          if (cardsInZone.length === 0 && id !== 'unsorted' && !empty) {
+            var col = config.columns.find(function(c) { return c.id === id; });
+            var msg = document.createElement('div');
+            msg.className = 'empty-state';
+            msg.textContent = col.empty;
+            zone.appendChild(msg);
+          }
+        });
+      }
+
+      function renderSaved() {
+        savedList.innerHTML = '';
+        if (savedCardIds.length === 0) {
+          savedList.innerHTML = '<div class="empty-state">' + config.emptySavedText + '</div>';
+          status.textContent = config.noSavedText;
+          return;
+        }
+        savedCardIds.forEach(function(id) {
+          var text = cardMap.get(id);
+          var item = document.createElement('div');
+          item.className = 'saved-card';
+          item.innerHTML = '<span class="saved-label">Card ' + id + '</span><div>' + text + '</div>';
+          savedList.appendChild(item);
+        });
+        status.textContent = savedCardIds.length + ' of ' + config.maxSaved + ' cards saved.';
+      }
+
+      function updateUI() {
+        toggleBtn.textContent = keepMode ? 'Done choosing' : config.selectLabel;
+        hint.textContent = keepMode ? config.keepOnHint : config.keepOffHint;
+        clearBtn.disabled = savedCardIds.length === 0;
+        document.querySelectorAll('.card[data-sorter="' + config.name + '"]').forEach(function(card) {
+          var id = Number(card.dataset.cardId);
+          card.classList.toggle('keep-selected', savedCardIds.indexOf(id) !== -1);
+          card.title = keepMode && zones[config.activeZoneId].contains(card) ? 'Click to save or unsave this card.' : '';
+        });
+      }
+
+      function toggleSaved(cardId) {
+        var exists = savedCardIds.indexOf(cardId) !== -1;
+        if (exists) {
+          savedCardIds = savedCardIds.filter(function(id) { return id !== cardId; });
+        } else {
+          if (savedCardIds.length >= config.maxSaved) return;
+          savedCardIds = savedCardIds.concat([cardId]);
+        }
+        renderSaved();
+        updateUI();
+        notifyChange();
+      }
+
+      function syncSaved() {
+        savedCardIds = savedCardIds.filter(function(id) {
+          var el = document.querySelector('.card[data-sorter="' + config.name + '"][data-card-id="' + id + '"]');
+          return el && zones[config.activeZoneId].contains(el);
+        });
+        renderSaved();
+        updateUI();
+        notifyChange();
+      }
+
+      function createCard(cardData) {
+        var num = cardData[0];
+        var text = cardData[1];
+        var el = document.createElement('div');
+        el.className = 'card';
+        el.draggable = true;
+        el.dataset.sorter = config.name;
+        el.dataset.cardId = String(num);
+        el.innerHTML = '<span class="card-num">' + num + '</span><div>' + text + '</div>';
+        el.addEventListener('dragstart', function() { el.classList.add('dragging'); });
+        el.addEventListener('dragend', function() {
+          el.classList.remove('dragging');
+          refreshEmptyStates();
+          syncSaved();
+        });
+        el.addEventListener('click', function() {
+          if (!keepMode) return;
+          if (!zones[config.activeZoneId].contains(el)) return;
+          toggleSaved(Number(el.dataset.cardId));
+        });
+        return el;
+      }
+
+      function populateInitial() {
+        zones.unsorted.innerHTML = '';
+        config.cards.forEach(function(card) {
+          zones.unsorted.appendChild(createCard(card));
+        });
+        config.columns.forEach(function(col) {
+          if (col.id !== 'unsorted') {
+            zones[col.id].innerHTML = '<div class="empty-state">' + col.empty + '</div>';
+          }
+        });
+        savedCardIds = [];
+        renderSaved();
+        updateUI();
+        notifyChange();
+      }
+
+      board.querySelectorAll('.column').forEach(function(column) {
+        var zone = column.querySelector('.dropzone');
+        column.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          column.classList.add('drag-over');
+        });
+        column.addEventListener('dragleave', function() {
+          column.classList.remove('drag-over');
+        });
+        column.addEventListener('drop', function(e) {
+          e.preventDefault();
+          column.classList.remove('drag-over');
+          var dragged = document.querySelector('.card.dragging[data-sorter="' + config.name + '"]');
+          if (!dragged) return;
+          var empty = zone.querySelector('.empty-state');
+          if (empty) empty.remove();
+          zone.appendChild(dragged);
+          refreshEmptyStates();
+          syncSaved();
+        });
+      });
+
+      toggleBtn.addEventListener('click', function() {
+        keepMode = !keepMode;
+        updateUI();
+      });
+
+      clearBtn.addEventListener('click', function() {
+        savedCardIds = [];
+        renderSaved();
+        updateUI();
+        notifyChange();
+      });
+
+      populateInitial();
+      refreshEmptyStates();
+
+      return {
+        reset: function() {
+          keepMode = false;
+          populateInitial();
+          refreshEmptyStates();
+        },
+        getSavedCards: function() {
+          return savedCardIds.map(function(id) {
+            return { id: id, text: cardMap.get(id) };
+          });
+        }
+      };
+    }
+
+    var positionMeta = {
+      contemplatives: {
+        title: 'Contemplatives',
+        focus: 'help me honor inner presence, deepen what feels spiritually real, and see how my five cards reveal where contemplation is inviting embodiment',
+        questions: [
+          'Which of my five selections feels most spiritually alive for me right now?',
+          'What is one concrete way I could live that more visibly?'
+        ]
+      },
+      explorers: {
+        title: 'Explorers',
+        focus: 'help me work with curiosity, spiritual openness, and experimentation without losing depth or integrity',
+        questions: [
+          'Which of my five selections feels most alive for me to explore right now?',
+          'What is one grounded next step I could take?'
+        ]
+      },
+      empiricists: {
+        title: 'Empiricists',
+        focus: 'help me connect practical reality, lived evidence, and honest experience to the deeper meaning of my five cards',
+        questions: [
+          'Which of my five selections feels most clearly true in my daily life?',
+          'What is one small, observable step I could take?'
+        ]
+      },
+      investigators: {
+        title: 'Investigators',
+        focus: 'help me use inquiry, reflection, and intelligent experimentation to understand the deeper pattern in my five cards',
+        questions: [
+          'Which of my five selections holds the real question for me?',
+          'What is one question most worth staying with now?'
+        ]
+      }
+    };
+
+
+    function updatePromptPreview(truth, attention) {
+      renderSummaryList(promptPreviewTruth, truth, 'No questions selected yet.');
+      renderSummaryList(promptPreviewAttention, attention, 'No attention items selected yet.');
+      if (!currentPosition) {
+        promptPreviewPosition.textContent = 'No InnerGPS position selected yet.';
+      } else {
+        promptPreviewPosition.textContent = positionMeta[currentPosition].title;
+      }
+    }
+
+    function getPromptText() {
+      if (!truthSorter || !attentionSorter) return '';
+      var truth = truthSorter.getSavedCards();
+      var attention = attentionSorter.getSavedCards();
+
+      renderSummaryList(summaryTruthList, truth, 'No truth cards selected yet.');
+      renderSummaryList(summaryAttentionList, attention, 'No attention cards selected yet.');
+      updatePromptPreview(truth, attention);
+
+      var truthLines = truth.length ? truth.map(function(c, i) { return (i + 1) + '. ' + c.text; }).join('\n') : 'None selected yet.';
+      var attentionLines = attention.length ? attention.map(function(c, i) { return (i + 1) + '. ' + c.text; }).join('\n') : 'None selected yet.';
+
+      if (!currentPosition) {
+        return 'My 3 Truth Cards\n' + truthLines + '\n\nMy 2 Attention Cards\n' + attentionLines + '\n\nI have not yet chosen the InnerGPS position that best describes where I am right now. Based on these five cards, help me reflect on which of these feels most accurate right now: Contemplatives, Explorers, Empiricists, or Investigators. Ask me 5 clarifying questions.';
+      }
+
+      var meta = positionMeta[currentPosition];
+      var questionLines = meta.questions.map(function(q, i) { return (i + 1) + '. ' + q; }).join('\n');
+
+      return 'My 3 Truth Cards\n' + truthLines + '\n\nMy 2 Attention Cards\n' + attentionLines + '\n\nMy current InnerGPS position\n' + meta.title + '\n\nHelp me explore the deeper pattern in these five selections in a thoughtful, grounded way.\n\nPlease do four things:\n1. Briefly reflect back the overall pattern you see across my five cards.\n2. Help me understand how my current InnerGPS position shapes the meaning of these cards.\n3. Ask me these 2 questions:\n   ' + questionLines.replace(/\n/g, '\n   ') + '\n4. Suggest one gentle next step I could explore.';
+    }
+
+    function buildSummary() {
+      var text = getPromptText();
+      summaryPrompt.value = text;
+      if (!currentPosition) {
+        copyStatus.textContent = 'Choose your InnerGPS position to receive a more tailored reflection prompt.';
+      } else {
+        copyStatus.textContent = 'Your reflection prompt is ready below. Copy it, then paste it into ChatGPT or another AI tool.';
+      }
+      buildSummaryBtn.textContent = 'Refresh Reflection Prompt';
+      updateSummaryAvailability();
+      return text;
+    }
+
+    function refreshSummaryListsOnly() {
+      buildSummary();
+    }
+
+    truthSorter = createSorter({
+      name: 'truth',
+      boardId: 'truthBoard',
+      cards: truthCards,
+      columns: [
+        { id: 'unsorted', title: 'Start Here', desc: 'Read each question slowly and move it where it belongs for you right now.' },
+        { id: 'true', title: 'Feels True', desc: 'This question feels especially alive or true for me right now.', empty: 'Drop cards here that feel true right now.' },
+        { id: 'notsure', title: 'Not Sure / In Between', desc: 'I feel some pull here, but I am not fully clear.', empty: 'Drop cards here that feel mixed, emerging, or uncertain.' },
+        { id: 'false', title: 'Does Not Feel True', desc: 'This does not feel especially true for me right now.', empty: 'Drop cards here that do not feel true at this moment.' }
+      ],
+      activeZoneId: 'true',
+      maxSaved: 3,
+      savedListId: 'truthSavedList',
+      statusId: 'truthStatus',
+      hintId: 'truthHint',
+      toggleBtnId: 'truthToggleBtn',
+      clearBtnId: 'truthClearBtn',
+      selectLabel: 'Choose 3 Questions',
+      keepOnHint: 'Selection mode is on. Click up to three cards in the Feels True column to save them.',
+      keepOffHint: 'Turn on selection mode, then click up to three cards in the Feels True column.',
+      emptySavedText: 'Your selected questions will appear here.',
+      noSavedText: 'No questions saved yet.',
+      onChange: refreshSummaryListsOnly
+    });
+
+    attentionSorter = createSorter({
+      name: 'attention',
+      boardId: 'attentionBoard',
+      cards: attentionCards,
+      columns: [
+        { id: 'unsorted', title: 'Start Here', desc: 'Read each prompt slowly and move it where it belongs for you right now.' },
+        { id: 'active', title: 'This Is Active for Me', desc: 'This feels present, important, or alive in my life right now.', empty: 'Drop cards here that are clearly active for you right now.' },
+        { id: 'maybe', title: 'Maybe / Somewhat', desc: 'There is some truth here, but it is not fully clear or central.', empty: 'Drop cards here that feel partly true or emerging.' },
+        { id: 'notactive', title: 'Not Really Active', desc: 'This does not feel like a central issue for me right now.', empty: 'Drop cards here that do not feel especially active right now.' }
+      ],
+      activeZoneId: 'active',
+      maxSaved: 2,
+      savedListId: 'attentionSavedList',
+      statusId: 'attentionStatus',
+      hintId: 'attentionHint',
+      toggleBtnId: 'attentionToggleBtn',
+      clearBtnId: 'attentionClearBtn',
+      selectLabel: 'Choose Attention Cards',
+      keepOnHint: 'Selection mode is on. Click up to two cards in the This Is Active for Me column to save them.',
+      keepOffHint: 'Turn on selection mode, then click up to two cards in the This Is Active for Me column.',
+      emptySavedText: 'Your selected attention cards will appear here.',
+      noSavedText: 'No attention cards saved yet.',
+      onChange: refreshSummaryListsOnly
+    });
+
+    buildSummaryBtn.addEventListener('click', buildSummary);
+
+    copyPromptBtn.addEventListener('click', async function() {
+      var text = buildSummary().trim();
+      if (!text) return;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          copyStatus.textContent = 'Prompt copied. Now click Open ChatGPT and paste it there.';
+        } else {
+          summaryPrompt.focus();
+          summaryPrompt.select();
+          summaryPrompt.setSelectionRange(0, summaryPrompt.value.length);
+          var ok = document.execCommand('copy');
+          copyStatus.textContent = ok ? 'Prompt copied. Now click Open ChatGPT and paste it there.' : 'Select the prompt text above and copy it manually.';
+        }
+      } catch (e) {
+        summaryPrompt.focus();
+        summaryPrompt.select();
+        summaryPrompt.setSelectionRange(0, summaryPrompt.value.length);
+        copyStatus.textContent = 'Select the prompt text above and copy it manually.';
+      }
+      updateSummaryAvailability();
+    });
+
+    openAIBtn.addEventListener('click', function() {
+      window.open('https://chatgpt.com/', '_blank', 'noopener,noreferrer');
+      copyStatus.textContent = 'ChatGPT opened in a new tab. Paste the copied prompt there.';
+    });
+
+    document.querySelectorAll('.position-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        currentPosition = card.dataset.position;
+        document.querySelectorAll('.position-card').forEach(function(btn) {
+          btn.classList.remove('active');
+        });
+        card.classList.add('active');
+        positionStatus.textContent = 'Current InnerGPS position: ' + positionMeta[currentPosition].title;
+        buildSummary();
+      });
+    });
+
+    document.getElementById('resetAllBtn').addEventListener('click', function() {
+      truthSorter.reset();
+      attentionSorter.reset();
+      summaryPrompt.value = '';
+      renderSummaryList(summaryTruthList, [], 'No truth cards selected yet.');
+      renderSummaryList(summaryAttentionList, [], 'No attention cards selected yet.');
+      copyStatus.textContent = 'Your reflection prompt updates automatically. Copy it, then paste it into ChatGPT or another AI tool.';
+      positionStatus.textContent = 'No InnerGPS position selected yet.';
+      promptPreviewPosition.textContent = 'No InnerGPS position selected yet.';
+      currentPosition = null;
+      document.querySelectorAll('.position-card').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      buildSummaryBtn.textContent = 'Refresh Reflection Prompt';
+      updateSummaryAvailability();
+      buildSummary();
+    });
+
+    renderSummaryList(summaryTruthList, [], 'No truth cards selected yet.');
+    renderSummaryList(summaryAttentionList, [], 'No attention cards selected yet.');
+    buildSummary();
+  </script>
 </body>
 </html>
